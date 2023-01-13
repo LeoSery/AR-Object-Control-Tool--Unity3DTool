@@ -1,7 +1,5 @@
-//using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
-//using System.Threading;
 
 public class ElevationManager : MonoBehaviour
 {
@@ -94,20 +92,10 @@ public class ElevationManager : MonoBehaviour
     void Update()
     {
         if (parentObject != null)
-        {
             if (Input.touchCount == 1 || Input.GetKeyDown(KeyCode.Mouse0))
-            {
                 if (IsOnObject())
-                {
                     if (!isItLevitate)
-                    {
                         Levitate();
-                    }
-                }
-            }
-        }
-        // if (Input.GetKeyDown(KeyCode.Mouse0))
-        //     Levitate();
     }
 
     void GoToTarget()
@@ -118,7 +106,10 @@ public class ElevationManager : MonoBehaviour
 
         if (travelDistance.magnitude < 0.1f)
         {
-            isItLevitate = true;
+            if (!isItLevitate)
+                isItLevitate = true;
+            else
+                isItLevitate = false;
             CancelInvoke("GoToTarget");
         }
     }
@@ -136,7 +127,7 @@ public class ElevationManager : MonoBehaviour
     {
         Target = new Vector3(parentObject.transform.localPosition.x, saveGroundPos, parentObject.transform.localPosition.z);
         stopButton.GetComponent<Button>().interactable = false;
-        isItLevitate = false;
+        InvokeRepeating("GoToTarget", 0f, Time.deltaTime);
         StopAnimation();
     }
 
@@ -168,7 +159,6 @@ public class ElevationManager : MonoBehaviour
         {
             objectAnimator.enabled = true;
             objectAnimator.Play("Floating");
-            //isItLevitate = true;
         }
         else
             Debug.LogWarning("No Animator to play");
@@ -177,10 +167,7 @@ public class ElevationManager : MonoBehaviour
     public void StopAnimation()
     {
         if (objectAnimator != null)
-        {
             objectAnimator.enabled = false;
-            isItLevitate = false;
-        }
         else
             Debug.LogWarning("No Animator to play");
     }
