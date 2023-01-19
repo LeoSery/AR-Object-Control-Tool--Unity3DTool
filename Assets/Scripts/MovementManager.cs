@@ -254,13 +254,13 @@ public class MovementManager : MonoBehaviour
                 switch (rotationAxis)
                 {
                     case RotationAxis.X:
-                        ObjectToAffect.transform.localRotation *= Quaternion.Euler(0, -touch.deltaPosition.x * rotationSpeed, 0);
+                        ObjectToAffect.transform.Rotate(touch.deltaPosition.y * rotationSpeed, 0f, 0f, Space.World);
                         break;
                     case RotationAxis.Y:
-                        ObjectToAffect.transform.localRotation *= Quaternion.Euler(touch.deltaPosition.y * rotationSpeed, 0, 0);
+                        ObjectToAffect.transform.Rotate(0f, -touch.deltaPosition.x * rotationSpeed, 0f, Space.World);
                         break;
                     case RotationAxis.All:
-                        ObjectToAffect.transform.localRotation *= Quaternion.Euler(touch.deltaPosition.y * rotationSpeed, -touch.deltaPosition.x * rotationSpeed, 0);
+                        ObjectToAffect.transform.Rotate(touch.deltaPosition.y * rotationSpeed, -touch.deltaPosition.x * rotationSpeed, 0f, Space.World);
                         break;
                 }
             }
