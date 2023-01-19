@@ -6,7 +6,7 @@ public class MovementManager : MonoBehaviour
 {
     public enum RotationAxis
     {
-        X, Y, Z
+        X, Y, All,
     }
 
     [Header("Movement Allowed :")]
@@ -30,8 +30,8 @@ public class MovementManager : MonoBehaviour
 
     [Header("Rotation Settings :")]
     public RotationAxis rotationAxis;
-    [Range(0, 200)]
-    public float rotationSpeed = 100f;
+    [Range(0, (float)0.1)]
+    public float rotationSpeed = 0.5f;
 
     [Header("Replace Settings :")]
     [HideInInspector] public UnityEngine.UI.Image imageLoading;
@@ -48,7 +48,6 @@ public class MovementManager : MonoBehaviour
     private readonly float startingTimeToHold = 0.75f;
     private readonly float timeToHold = 1.25f;
     private float currentStartingTime = 0f;
-    private float startingRotPosition;
     private float currentTime = 0f;
     private float initialDistance;
 
@@ -248,65 +247,22 @@ public class MovementManager : MonoBehaviour
         if (allowRotating)
         {
             Touch touch = Input.GetTouch(0);
-            switch (touch.phase)
+            if (touch.phase == TouchPhase.Moved)
             {
-                case TouchPhase.Began:
-                    startingRotPosition = touch.position.x;
-                    break;
-                case TouchPhase.Moved:
-                    if (Mathf.Approximately(startingRotPosition, touch.position.x))
-                        return;
-                    switch (rotationAxis)
-                    {
-                        case RotationAxis.X:
-                            if (startingRotPosition > touch.position.x)
-                            {
-                                loadingObject.SetActive(false);
-                                currentTime = 0f;
-                                ObjectToAffect.transform.Rotate(Vector3.right, rotationSpeed * Time.deltaTime);
-                            }
-                            else if (startingRotPosition < touch.position.x)
-                            {
-                                loadingObject.SetActive(false);
-                                currentTime = 0f;
-                                ObjectToAffect.transform.Rotate(Vector3.right, -rotationSpeed * Time.deltaTime);
-                            }
-                            break;
-                        case RotationAxis.Y:
-                            if (startingRotPosition > touch.position.x)
-                            {
-                                loadingObject.SetActive(false);
-                                currentTime = 0f;
-                                ObjectToAffect.transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
-                            }
-                            else if (startingRotPosition < touch.position.x)
-                            {
-                                loadingObject.SetActive(false);
-                                currentTime = 0f;
-                                ObjectToAffect.transform.Rotate(Vector3.up, -rotationSpeed * Time.deltaTime);
-                            }
-                            break;
-                        case RotationAxis.Z:
-                            if (startingRotPosition > touch.position.x)
-                            {
-                                loadingObject.SetActive(false);
-                                currentTime = 0f;
-                                ObjectToAffect.transform.Rotate(Vector3.forward, rotationSpeed * Time.deltaTime);
-                            }
-                            else if (startingRotPosition < touch.position.x)
-                            {
-                                loadingObject.SetActive(false);
-                                currentTime = 0f;
-                                ObjectToAffect.transform.Rotate(Vector3.forward, -rotationSpeed * Time.deltaTime);
-                            }
-                            break;
-                    }
-                    break;
-                case TouchPhase.Ended:
-                    break;
-                case TouchPhase.Stationary:
-                    startingRotPosition = touch.position.x;
-                    break;
+                loadingObject.SetActive(false);
+                currentTime = 0f;
+                switch (rotationAxis)
+                {
+                    case RotationAxis.X:
+                        ObjectToAffect.transform.localRotation *= Quaternion.Euler(0, -touch.deltaPosition.x * rotationSpeed, 0);
+                        break;
+                    case RotationAxis.Y:
+                        ObjectToAffect.transform.localRotation *= Quaternion.Euler(touch.deltaPosition.y * rotationSpeed, 0, 0);
+                        break;
+                    case RotationAxis.All:
+                        ObjectToAffect.transform.localRotation *= Quaternion.Euler(touch.deltaPosition.y * rotationSpeed, -touch.deltaPosition.x * rotationSpeed, 0);
+                        break;
+                }
             }
         }
         else
