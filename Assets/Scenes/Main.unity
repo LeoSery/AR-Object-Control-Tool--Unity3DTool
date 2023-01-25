@@ -1406,21 +1406,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbef06f3bbd02ad4085df9098b06a7f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowScaling: 1
-  allowRotating: 1
-  allowReplacement: 1
+  Scaling: 1
+  Rotating: 1
+  Replacement: 1
+  Movement: 1
   ObjectContainer: {fileID: 534816868}
   ObjectToAffect: {fileID: 1860919170}
+  useExternalScript: 1
+  useElevetionManager: 1
   fullAR: 0
-  loadingObject: {fileID: 1122931202}
   targetTag: UI
   throughUI: 0
   maxObjectScale: 3
   minObjectScale: 1
-  rotationAxis: 2
+  rotationAxis: 0
   rotationSpeed: 0.07
+  loadingObject: {fileID: 1122931202}
   imageLoading: {fileID: 0}
-  allowMovement: 1
   elevationManager: {fileID: 1692214119}
   dragging: 0
 --- !u!1 &1860919170

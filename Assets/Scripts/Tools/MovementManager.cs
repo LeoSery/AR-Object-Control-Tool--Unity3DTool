@@ -6,42 +6,33 @@ public class MovementManager : MonoBehaviour
 {
     public enum RotationAxis
     {
-        X, Y, All,
+        All, X, Y,
     }
 
-    [Header("Movement Allowed :")]
-    public bool allowScaling = true;
-    public bool allowRotating = true;
-    public bool allowReplacement = true;
+    public bool Scaling = true;
+    public bool Rotating = true;
+    public bool Replacement = true;
+    public bool Movement = true;
 
-    [Header("Script Target :")]
     public GameObject ObjectContainer;
     public GameObject ObjectToAffect;
+    public bool useExternalScript = false;
+    public bool useElevetionManager = false;
     public bool fullAR = false;
 
-    [Header("UI :")]
-    public GameObject loadingObject;
     public string targetTag;
     public bool throughUI;
 
-    [Header("Scale Settings :")]
     public float maxObjectScale = 3f;
     public float minObjectScale = 1f;
 
-    [Header("Rotation Settings :")]
     public RotationAxis rotationAxis;
     [Range(0, (float)0.1)]
     public float rotationSpeed = 0.5f;
+    public GameObject loadingObject;
 
-    [Header("Replace Settings :")]
     [HideInInspector] public UnityEngine.UI.Image imageLoading;
-
-    [Header("Movement Settings :")]
-    public bool allowMovement = true;
-
-    [Header("Additional features scripts :")]
-    public ElevationManager elevationManager;
-
+    [HideInInspector] public ElevationManager elevationManager;
     [HideInInspector] public bool dragging = false;
     private bool IsCurrentlyReplace = false;
 
@@ -65,13 +56,13 @@ public class MovementManager : MonoBehaviour
     {
         if (ObjectToAffect != null)
         {
-            if (elevationManager.isItLevitate)
+            if ((useElevetionManager && elevationManager.isItLevitate) || !useExternalScript)
             {
                 if (IsOnUI() == false)
                 {
                     if (Input.touchCount == 0)
                     {
-                        if (allowReplacement)
+                        if (Replacement)
                         {
                             imageLoading.fillAmount = 0f;
                             loadingObject.SetActive(false);
@@ -109,7 +100,7 @@ public class MovementManager : MonoBehaviour
 
     void SetTargetObjectSettings()
     {
-        if (allowReplacement)
+        if (Replacement)
         {
             if (loadingObject == null)
                 throw new System.NullReferenceException("MovementManager > Option to allow moving is TRUE but 'loadingObject' has no reference set to an instance of an object.");
@@ -124,7 +115,7 @@ public class MovementManager : MonoBehaviour
             if (ObjectContainer == null)
                 ObjectContainer = ObjectToAffect.transform.parent.gameObject;
 
-            if (allowMovement)
+            if (Movement)
             {
                 if (!ObjectToAffect.CompareTag("ObjectToAffect"))
                     throw new System.NullReferenceException("MovementManager > Option to allow moving is TRUE but 'ObjectToAffect' does not have the necessary 'ObjectToAffect' tag to use the motion option.");
@@ -180,7 +171,7 @@ public class MovementManager : MonoBehaviour
 
     bool IsTimeToReplace()
     {
-        if (allowReplacement)
+        if (Replacement)
         {
             if (Input.touchCount > 0)
             {
@@ -244,7 +235,7 @@ public class MovementManager : MonoBehaviour
 
     void Rotate()
     {
-        if (allowRotating)
+        if (Rotating)
         {
             Touch touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Moved)
@@ -271,7 +262,7 @@ public class MovementManager : MonoBehaviour
 
     void Rescale()
     {
-        if (allowScaling)
+        if (Scaling)
         {
             if (Input.touchCount > 0)
             {
@@ -315,7 +306,7 @@ public class MovementManager : MonoBehaviour
 
     public void Move()
     {
-        if (allowMovement)
+        if (Movement)
         {
             Touch touch = Input.GetTouch(0);
             Vector3 pos = touch.position;
@@ -328,7 +319,8 @@ public class MovementManager : MonoBehaviour
                 {
                     if (hit.collider.CompareTag("ObjectToAffect"))
                     {
-                        elevationManager.StopAnimation();
+                        if (useElevetionManager)
+                            elevationManager.StopAnimation();
                         toDrag = hit.transform.parent;
                         dragging = true;
 
@@ -346,9 +338,9 @@ public class MovementManager : MonoBehaviour
             if (dragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled))
             {
                 toDrag.position = new Vector3(toDrag.position.x, toDrag.position.y, toDrag.position.z);
-                //elevationManager.Target = toDrag.transform.position;
                 dragging = false;
-                elevationManager.PlayAnimation();
+                if (useElevetionManager)
+                    elevationManager.PlayAnimation();
             }
         }
         else
@@ -357,6 +349,6 @@ public class MovementManager : MonoBehaviour
 
     public void Replace()
     {
-
+        //call your AR replacement function here
     }
 }
