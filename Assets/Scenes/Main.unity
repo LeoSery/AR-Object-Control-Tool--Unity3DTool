@@ -1392,6 +1392,10 @@ MonoBehaviour:
   heightReferenceObject: {fileID: 0}
   stopButton: {fileID: 1209378799}
   movementManager: {fileID: 1692214120}
+  useExternalScript: 1
+  useMovementManager: 1
+  useVuforia: 0
+  useButton: 1
   Target: {x: 0, y: 0, z: 0}
   saveGroundPos: 0
 --- !u!114 &1692214120

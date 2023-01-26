@@ -4,18 +4,20 @@ using UnityEngine;
 
 public class MovementManager : MonoBehaviour
 {
+    #region Fields
     public enum RotationAxis
     {
         All, X, Y,
     }
 
-    public bool Scaling = true;
-    public bool Rotating = true;
-    public bool Replacement = true;
-    public bool Movement = true;
+    public bool Scaling = false;
+    public bool Rotating = false;
+    public bool Replacement = false;
+    public bool Movement = false;
 
     public GameObject ObjectContainer;
     public GameObject ObjectToAffect;
+
     public bool useExternalScript = false;
     public bool useElevetionManager = false;
     public bool fullAR = false;
@@ -35,18 +37,17 @@ public class MovementManager : MonoBehaviour
     [HideInInspector] public ElevationManager elevationManager;
     [HideInInspector] public bool dragging = false;
     private bool IsCurrentlyReplace = false;
-
     private readonly float startingTimeToHold = 0.75f;
     private readonly float timeToHold = 1.25f;
     private float currentStartingTime = 0f;
     private float currentTime = 0f;
     private float initialDistance;
-
     private Vector3 initialScale;
     private Vector3 touchOffset;
-
     private Transform toDrag;
+    #endregion
 
+    #region UnityFunctions
     void Start()
     {
         SetTargetObjectSettings();
@@ -97,7 +98,10 @@ public class MovementManager : MonoBehaviour
                 return;
         }
     }
+    #endregion
 
+    #region Methods
+    #region Methods.SetTargetObjectSettings();
     void SetTargetObjectSettings()
     {
         if (Replacement)
@@ -122,7 +126,9 @@ public class MovementManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Methods.ISOnObject();
     bool IsOnObject()
     {
         if (Input.touchCount > 0)
@@ -142,7 +148,9 @@ public class MovementManager : MonoBehaviour
         else
             return false;
     }
+    #endregion
 
+    #region Methods.IsOnUI();
     bool IsOnUI()
     {
         if (!throughUI)
@@ -168,7 +176,9 @@ public class MovementManager : MonoBehaviour
         else
             return false;
     }
+    #endregion
 
+    #region Methods.IsTimeToReplace();
     bool IsTimeToReplace()
     {
         if (Replacement)
@@ -232,7 +242,9 @@ public class MovementManager : MonoBehaviour
         else
             return false;
     }
+    #endregion
 
+    #region Methods.Rotate();
     void Rotate()
     {
         if (Rotating)
@@ -259,7 +271,9 @@ public class MovementManager : MonoBehaviour
         else
             return;
     }
+    #endregion
 
+    #region Methods.Rescale();
     void Rescale()
     {
         if (Scaling)
@@ -303,7 +317,9 @@ public class MovementManager : MonoBehaviour
         else
             return;
     }
+    #endregion
 
+    #region Methods.Move();
     public void Move()
     {
         if (Movement)
@@ -346,9 +362,13 @@ public class MovementManager : MonoBehaviour
         else
             return;
     }
+    #endregion
 
+    #region Methods.Replace();
     public void Replace()
     {
         //call your AR replacement function here
     }
+    #endregion
+    #endregion
 }

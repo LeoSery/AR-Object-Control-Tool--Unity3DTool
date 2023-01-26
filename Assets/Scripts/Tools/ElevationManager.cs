@@ -3,41 +3,58 @@ using UnityEngine;
 
 public class ElevationManager : MonoBehaviour
 {
-    [Header("Infos :")]
+    #region Fields
     public bool isItLevitate = false;
     public float groundPosition;
 
-    [Header("GamesObjets :")]
     public GameObject objectToAffect;
     public GameObject parentObject;
     public Animator objectAnimator;
 
-    [Header("Settings :")]
     public bool playAnimation;
     [Range(0.1f, 30f)]
     public float objectFloatHeight;
     [Range(300f, 1f)]
     public float Speed;
 
-    [Header("Vuforia :")]
     public bool objectDefinesHeightGround;
     public GameObject heightReferenceObject;
-
-    [Header("UI :")]
     public GameObject stopButton;
 
-    [Header("Additional features scripts :")]
     public MovementManager movementManager;
+    public bool useExternalScript = false;
+    public bool useMovementManager = false;
+    public bool useVuforia = false;
+    public bool useButton = false;
 
     private Vector3 Velocity = Vector3.zero;
     public Vector3 Target;
     public float saveGroundPos;
+    #endregion
 
+    #region UnityFunctions
     void Awake()
     {
         SetUpManager();
     }
 
+    void Start()
+    {
+        Target = new Vector3(parentObject.transform.position.x, saveGroundPos, parentObject.transform.position.z);
+    }
+
+    void Update()
+    {
+        if (parentObject != null)
+            if (Input.touchCount == 1 || Input.GetKeyDown(KeyCode.Mouse0))
+                if (IsOnObject())
+                    if (!isItLevitate)
+                        Levitate();
+    }
+    #endregion
+
+    #region Methods
+    #region Methods.SetUpManager();
     public void SetUpManager()
     {
         if (stopButton != null)
@@ -83,21 +100,9 @@ public class ElevationManager : MonoBehaviour
             { movementManager = manager; };
         }
     }
+    #endregion
 
-    void Start()
-    {
-        Target = new Vector3(parentObject.transform.position.x, saveGroundPos, parentObject.transform.position.z);
-    }
-
-    void Update()
-    {
-        if (parentObject != null)
-            if (Input.touchCount == 1 || Input.GetKeyDown(KeyCode.Mouse0))
-                if (IsOnObject())
-                    if (!isItLevitate)
-                        Levitate();
-    }
-
+    #region Methods.GoToTarget();
     void GoToTarget()
     {
         Vector3 travelDistance = Target - parentObject.transform.localPosition;
@@ -113,7 +118,9 @@ public class ElevationManager : MonoBehaviour
             CancelInvoke("GoToTarget");
         }
     }
+    #endregion
 
+    #region Methods.Levitate();
     void Levitate()
     {
         Target = new Vector3(parentObject.transform.localPosition.x, saveGroundPos, parentObject.transform.localPosition.z) + new Vector3(0f, objectFloatHeight, 0f);
@@ -121,8 +128,9 @@ public class ElevationManager : MonoBehaviour
         InvokeRepeating("GoToTarget", 0f, Time.deltaTime);
         PlayAnimation();
     }
+    #endregion
 
-
+    #region StopLevitate();
     public void StopLevitate()
     {
         Target = new Vector3(parentObject.transform.localPosition.x, saveGroundPos, parentObject.transform.localPosition.z);
@@ -130,7 +138,9 @@ public class ElevationManager : MonoBehaviour
         InvokeRepeating("GoToTarget", 0f, Time.deltaTime);
         StopAnimation();
     }
+    #endregion
 
+    #region Methods.IsOnObject();
     bool IsOnObject()
     {
         if (Input.touchCount > 0)
@@ -152,7 +162,9 @@ public class ElevationManager : MonoBehaviour
         else
             return false;
     }
+    #endregion
 
+    #region Methods.PlayAnimation();
     public void PlayAnimation()
     {
         if (objectAnimator != null)
@@ -163,7 +175,9 @@ public class ElevationManager : MonoBehaviour
         else
             Debug.LogWarning("No Animator to play");
     }
+    #endregion
 
+    #region Methods.StopAnimation();
     public void StopAnimation()
     {
         if (objectAnimator != null)
@@ -171,4 +185,6 @@ public class ElevationManager : MonoBehaviour
         else
             Debug.LogWarning("No Animator to play");
     }
+    #endregion
+    #endregion
 }
