@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AR-Object-Control-Tool -- MovementManagerCustomEditor
+// ####
+// Script modifying the Unity3D GUI to display the MovementManager Script component of the tool in a more organized way.
+// Script by Léo Séry - 26/01/2023
+// ####
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,7 +28,7 @@ public class MovementManagerCustomEditor : Editor
     SerializedProperty fullAR;
 
     SerializedProperty targetTag;
-    SerializedProperty throughUI;
+    SerializedProperty blockingIU;
 
     SerializedProperty maxObjectScale;
     SerializedProperty minObjectScale;
@@ -58,7 +66,7 @@ public class MovementManagerCustomEditor : Editor
         fullAR = serializedObject.FindProperty("fullAR");
 
         targetTag = serializedObject.FindProperty("targetTag");
-        throughUI = serializedObject.FindProperty("throughUI");
+        blockingIU = serializedObject.FindProperty("blockingIU");
 
         maxObjectScale = serializedObject.FindProperty("maxObjectScale");
         minObjectScale = serializedObject.FindProperty("minObjectScale");
@@ -107,8 +115,8 @@ public class MovementManagerCustomEditor : Editor
         if (UISettingsSection)
         {
             EditorGUILayout.Space(5);
-            EditorGUILayout.PropertyField(throughUI);
-            if (throughUI.boolValue)
+            EditorGUILayout.PropertyField(blockingIU);
+            if (blockingIU.boolValue)
             {
                 EditorGUILayout.PropertyField(targetTag);
                 if (targetTag.stringValue == "")

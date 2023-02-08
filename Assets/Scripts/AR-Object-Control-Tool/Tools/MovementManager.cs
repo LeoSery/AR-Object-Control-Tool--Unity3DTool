@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////////////////
+// AR-Object-Control-Tool -- MovementManager
+// ####
+// Script allowing to manipulate a GameObject in AR with a touch screen.
+// Script by Léo Séry - 30/12/2022
+// ####
+/////////////////////////////////////////////////////////////////////////
+
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine;
@@ -23,7 +31,7 @@ public class MovementManager : MonoBehaviour
     public bool fullAR = false;
 
     public string targetTag;
-    public bool throughUI;
+    public bool blockingIU;
 
     public float maxObjectScale = 3f;
     public float minObjectScale = 1f;
@@ -153,7 +161,7 @@ public class MovementManager : MonoBehaviour
     #region Methods.IsOnUI();
     bool IsOnUI()
     {
-        if (!throughUI)
+        if (blockingIU)
         {
             if (Input.touchCount > 0)
             {
@@ -165,8 +173,6 @@ public class MovementManager : MonoBehaviour
                 {
                     if (raycastResultList[i].gameObject.CompareTag(targetTag.ToString()))
                         return true;
-                    else
-                        return false;
                 }
                 return false;
             }
@@ -252,7 +258,8 @@ public class MovementManager : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Moved)
             {
-                loadingObject.SetActive(false);
+                if (Replacement)
+                    loadingObject.SetActive(false);
                 currentTime = 0f;
                 switch (rotationAxis)
                 {

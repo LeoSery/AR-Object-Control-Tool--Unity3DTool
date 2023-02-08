@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AR-Object-Control-Tool -- ElevationManagerCustomEditor
+// ####
+// Script modifying the Unity3D GUI to display the ElevationManager Script component of the tool in a more organized way.
+// Script by Léo Séry - 26/01/2023
+// ####
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -136,7 +144,10 @@ public class ElevationManagerCustomEditor : Editor
             if (VurforiaSection)
             {
                 EditorGUILayout.PropertyField(objectDefinesHeightGround);
-                EditorGUILayout.PropertyField(heightReferenceObject);
+                if (objectDefinesHeightGround.boolValue)
+                {
+                    EditorGUILayout.PropertyField(heightReferenceObject);
+                }
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
         }

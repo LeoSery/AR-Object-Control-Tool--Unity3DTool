@@ -1394,7 +1394,7 @@ MonoBehaviour:
   movementManager: {fileID: 1692214120}
   useExternalScript: 1
   useMovementManager: 1
-  useVuforia: 0
+  useVuforia: 1
   useButton: 1
   Target: {x: 0, y: 0, z: 0}
   saveGroundPos: 0
@@ -1420,7 +1420,7 @@ MonoBehaviour:
   useElevetionManager: 1
   fullAR: 0
   targetTag: UI
-  throughUI: 0
+  blockingIU: 1
   maxObjectScale: 3
   minObjectScale: 1
   rotationAxis: 0
