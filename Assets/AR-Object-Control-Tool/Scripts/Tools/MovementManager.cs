@@ -1,14 +1,17 @@
 /////////////////////////////////////////////////////////////////////////
 // AR-Object-Control-Tool -- MovementManager
-// ####
-// Script allowing to manipulate a GameObject in AR with a touch screen.
-// Script by Léo Séry - 30/12/2022
-// ####
+// Author: Léo Séry
+// Date created: 30/12/2022
+// Last updated: 15/02/2023
+// Purpose: Allow manipulation of a GameObject in AR with touch input.
+// Documentation: https://github.com/LeoSery/AR-Object-Control-Tool--Unity3DTool
 /////////////////////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine;
+using System;
+using TMPro;
 
 public class MovementManager : MonoBehaviour
 {
@@ -35,6 +38,12 @@ public class MovementManager : MonoBehaviour
 
     public float maxObjectScale = 3f;
     public float minObjectScale = 1f;
+    public bool useScaleIndicator = false;
+    public bool showRawScale = false;
+    public TextMeshProUGUI scaleText;
+    public float baseScale;
+    public float currentScale;
+    public float scaleFactor;
 
     public RotationAxis rotationAxis;
     [Range(0, (float)0.1)]
@@ -50,8 +59,8 @@ public class MovementManager : MonoBehaviour
     private float currentStartingTime = 0f;
     private float currentTime = 0f;
     private float initialDistance;
-    private Vector3 initialScale;
-    private Vector3 touchOffset;
+    private UnityEngine.Vector3 initialScale;
+    private UnityEngine.Vector3 touchOffset;
     private Transform toDrag;
     #endregion
 
@@ -132,6 +141,15 @@ public class MovementManager : MonoBehaviour
                 if (!ObjectToAffect.CompareTag("ObjectToAffect"))
                     throw new System.NullReferenceException("MovementManager > Option to allow moving is TRUE but 'ObjectToAffect' does not have the necessary 'ObjectToAffect' tag to use the motion option.");
             }
+        }
+
+        if (useScaleIndicator)
+        {
+            if (scaleText == null)
+                throw new System.NullReferenceException("MovementManager > Option to allow scaling is TRUE but 'scaleText' has no reference set to an instance of an object.");
+            baseScale = ObjectToAffect.transform.localScale.x;
+            currentScale = baseScale;
+            ChangeTextValue(FormatValue(currentScale));
         }
     }
     #endregion
@@ -296,17 +314,17 @@ public class MovementManager : MonoBehaviour
 
                 if (touchZero.phase == TouchPhase.Began || touchOne.phase == TouchPhase.Began)
                 {
-                    initialDistance = Vector2.Distance(touchZero.position, touchOne.position);
+                    initialDistance = UnityEngine.Vector2.Distance(touchZero.position, touchOne.position);
                     initialScale = ObjectToAffect.transform.localScale;
                 }
                 else
                 {
                     if (ObjectToAffect.transform.localScale.x <= minObjectScale || ObjectToAffect.transform.localScale.y <= minObjectScale || ObjectToAffect.transform.localScale.z <= minObjectScale)
-                        ObjectToAffect.transform.localScale = new Vector3(minObjectScale, minObjectScale, minObjectScale);
+                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(minObjectScale, minObjectScale, minObjectScale);
                     else if (ObjectToAffect.transform.localScale.x >= maxObjectScale || ObjectToAffect.transform.localScale.y >= maxObjectScale || ObjectToAffect.transform.localScale.z >= maxObjectScale)
-                        ObjectToAffect.transform.localScale = new Vector3(maxObjectScale, maxObjectScale, maxObjectScale);
+                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(maxObjectScale, maxObjectScale, maxObjectScale);
 
-                    float currentDistance = Vector2.Distance(touchZero.position, touchOne.position);
+                    float currentDistance = UnityEngine.Vector2.Distance(touchZero.position, touchOne.position);
 
                     if (Mathf.Approximately(initialDistance, 0))
                         return;
@@ -315,15 +333,84 @@ public class MovementManager : MonoBehaviour
                     if (ObjectToAffect.transform.localScale.x >= (1 - minObjectScale) && ObjectToAffect.transform.localScale.x <= (1 + maxObjectScale))
                         ObjectToAffect.transform.localScale = initialScale * factor;
                     if (ObjectToAffect.transform.localScale.x > (1 + maxObjectScale))
-                        ObjectToAffect.transform.localScale = new Vector3(1 + maxObjectScale, 1 + maxObjectScale, 1 + maxObjectScale);
+                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(1 + maxObjectScale, 1 + maxObjectScale, 1 + maxObjectScale);
                     else if (ObjectToAffect.transform.localScale.x < (1 - minObjectScale))
-                        ObjectToAffect.transform.localScale = new Vector3(1 - minObjectScale, 1 - minObjectScale, 1 - minObjectScale);
+                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(1 - minObjectScale, 1 - minObjectScale, 1 - minObjectScale);
                 }
+                currentScale = ObjectToAffect.transform.localScale.x;
+                ChangeTextValue(FormatValue(currentScale));
             }
         }
         else
             return;
     }
+
+    #region Methods.Rescale.ChangeTextValue();
+    public void ChangeTextValue(string value)
+    {
+        if (scaleText != null)
+            scaleText.text = value;
+    }
+    #endregion
+
+    #region Methods.Rescale.FormatValue();
+    public string FormatValue(float currentScaleValue)
+    {
+        scaleFactor = currentScaleValue / baseScale;
+
+        int integerPart = (int)Math.Truncate(scaleFactor);
+        int integerPartLength = integerPart.ToString().Length;
+
+        string floatingPart = "";
+        string res = "";
+
+        if (currentScaleValue >= baseScale)
+        {
+            if ((scaleFactor - integerPart) > 0)
+                floatingPart = scaleFactor.ToString().Substring(integerPartLength + 1);
+
+            if (integerPartLength >= 2)
+            {
+                res = "x" + integerPart.ToString();
+            }
+            else if (integerPartLength == 1)
+            {
+                if (floatingPart.Length > 1)
+                    res = "x" + integerPart + "." + floatingPart[0];
+                else
+                    res = "x" + integerPart;
+            }
+            return res;
+        }
+        else
+        {
+            int fractionDenominator = (int)(1 / scaleFactor);
+            if (showRawScale)
+            {
+                // Version with all denominator values.
+                res = "1/" + fractionDenominator.ToString();
+            }
+            else
+            {
+                // Version with logarithmically managed steps.
+                float step = GetStep(scaleFactor);
+                fractionDenominator = (int)(fractionDenominator / step) * (int)step;
+                res = "1/" + fractionDenominator.ToString();
+            }
+
+        }
+        return res;
+    }
+    #endregion
+
+    #region Methods.Rescale.GetStep();
+    private float GetStep(float scaleFactor)
+    {
+        float denominator = 1 / scaleFactor;
+        float step = (float)Math.Pow(10, Math.Floor(Math.Log10(denominator)));
+        return step;
+    }
+    #endregion
     #endregion
 
     #region Methods.Move();
@@ -332,7 +419,7 @@ public class MovementManager : MonoBehaviour
         if (Movement)
         {
             Touch touch = Input.GetTouch(0);
-            Vector3 pos = touch.position;
+            UnityEngine.Vector3 pos = touch.position;
 
             if (touch.phase == TouchPhase.Began)
             {
@@ -347,20 +434,20 @@ public class MovementManager : MonoBehaviour
                         toDrag = hit.transform.parent;
                         dragging = true;
 
-                        touchOffset = toDrag.position - Camera.main.ScreenToWorldPoint(new Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z));
+                        touchOffset = toDrag.position - Camera.main.ScreenToWorldPoint(new UnityEngine.Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z));
                     }
                 }
             }
 
             if (dragging && touch.phase == TouchPhase.Moved)
             {
-                Vector3 position = new Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z);
+                UnityEngine.Vector3 position = new UnityEngine.Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z);
                 toDrag.position = Camera.main.ScreenToWorldPoint(position) + touchOffset;
             }
 
             if (dragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled))
             {
-                toDrag.position = new Vector3(toDrag.position.x, toDrag.position.y, toDrag.position.z);
+                toDrag.position = new UnityEngine.Vector3(toDrag.position.x, toDrag.position.y, toDrag.position.z);
                 dragging = false;
                 if (useElevetionManager)
                     elevationManager.PlayAnimation();
@@ -375,6 +462,7 @@ public class MovementManager : MonoBehaviour
     public void Replace()
     {
         //call your AR replacement function here
+        Debug.LogWarning("Replacement of the object...");
     }
     #endregion
     #endregion

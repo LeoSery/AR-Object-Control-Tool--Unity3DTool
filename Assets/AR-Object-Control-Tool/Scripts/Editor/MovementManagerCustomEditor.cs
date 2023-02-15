@@ -1,10 +1,11 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 // AR-Object-Control-Tool -- MovementManagerCustomEditor
-// ####
-// Script modifying the Unity3D GUI to display the MovementManager Script component of the tool in a more organized way.
-// Script by Léo Séry - 26/01/2023
-// ####
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Author: Léo Séry
+// Date created: 26/01/2023
+// Last updated: 15/02/2023
+// Purpose: Modifies the Unity3D GUI to display the MovementManager script component of the tool in a more organized way.
+// Documentation: https://github.com/LeoSery/AR-Object-Control-Tool--Unity3DTool
+/////////////////////////////////////////////////////////////////////////
 
 using UnityEngine;
 #if UNITY_EDITOR
@@ -32,6 +33,11 @@ public class MovementManagerCustomEditor : Editor
 
     SerializedProperty maxObjectScale;
     SerializedProperty minObjectScale;
+    SerializedProperty useScaleIndicator;
+    SerializedProperty showRawScale;
+    SerializedProperty scaleText;
+    SerializedProperty baseScale;
+
 
     SerializedProperty rotationAxis;
     SerializedProperty rotationSpeed;
@@ -67,6 +73,10 @@ public class MovementManagerCustomEditor : Editor
 
         targetTag = serializedObject.FindProperty("targetTag");
         blockingIU = serializedObject.FindProperty("blockingIU");
+        useScaleIndicator = serializedObject.FindProperty("useScaleIndicator");
+        showRawScale = serializedObject.FindProperty("showRawScale");
+        scaleText = serializedObject.FindProperty("scaleText");
+        baseScale = serializedObject.FindProperty("baseScale");
 
         maxObjectScale = serializedObject.FindProperty("maxObjectScale");
         minObjectScale = serializedObject.FindProperty("minObjectScale");
@@ -143,6 +153,16 @@ public class MovementManagerCustomEditor : Editor
             {
                 EditorGUILayout.PropertyField(maxObjectScale);
                 EditorGUILayout.PropertyField(minObjectScale);
+
+                EditorGUILayout.Space(3);
+
+                EditorGUILayout.PropertyField(useScaleIndicator);
+                if (useScaleIndicator.boolValue)
+                {
+                    EditorGUILayout.PropertyField(scaleText);
+                    EditorGUILayout.PropertyField(baseScale);
+                    EditorGUILayout.PropertyField(showRawScale);
+                }
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
         }
