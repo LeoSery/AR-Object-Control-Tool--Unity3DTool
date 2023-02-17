@@ -2,7 +2,7 @@
 // AR-Object-Control-Tool -- MovementManagerCustomEditor
 // Author: Léo Séry
 // Date created: 26/01/2023
-// Last updated: 15/02/2023
+// Last updated: 16/02/2023
 // Purpose: Modifies the Unity3D GUI to display the MovementManager script component of the tool in a more organized way.
 // Documentation: https://github.com/LeoSery/AR-Object-Control-Tool--Unity3DTool
 /////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,9 @@ public class MovementManagerCustomEditor : Editor
     SerializedProperty Replacement;
     SerializedProperty Movement;
 
-    SerializedProperty ObjectContainer;
-    SerializedProperty ObjectToAffect;
+    SerializedProperty objectContainer;
+    SerializedProperty objectToAffect;
+    SerializedProperty targetCamera;
     SerializedProperty useExternalScript;
     SerializedProperty useElevetionManager;
     SerializedProperty fullAR;
@@ -35,9 +36,10 @@ public class MovementManagerCustomEditor : Editor
     SerializedProperty minObjectScale;
     SerializedProperty useScaleIndicator;
     SerializedProperty showRawScale;
+    SerializedProperty scaleIndicatorImagePrefab;
+    SerializedProperty targetUICameraPrefab;
     SerializedProperty scaleText;
     SerializedProperty baseScale;
-
 
     SerializedProperty rotationAxis;
     SerializedProperty rotationSpeed;
@@ -65,8 +67,9 @@ public class MovementManagerCustomEditor : Editor
         Replacement = serializedObject.FindProperty("Replacement");
         Movement = serializedObject.FindProperty("Movement");
 
-        ObjectContainer = serializedObject.FindProperty("ObjectContainer");
-        ObjectToAffect = serializedObject.FindProperty("ObjectToAffect");
+        objectContainer = serializedObject.FindProperty("objectContainer");
+        objectToAffect = serializedObject.FindProperty("objectToAffect");
+        targetCamera = serializedObject.FindProperty("targetCamera");
         useExternalScript = serializedObject.FindProperty("useExternalScript");
         useElevetionManager = serializedObject.FindProperty("useElevetionManager");
         fullAR = serializedObject.FindProperty("fullAR");
@@ -75,6 +78,8 @@ public class MovementManagerCustomEditor : Editor
         blockingIU = serializedObject.FindProperty("blockingIU");
         useScaleIndicator = serializedObject.FindProperty("useScaleIndicator");
         showRawScale = serializedObject.FindProperty("showRawScale");
+        scaleIndicatorImagePrefab = serializedObject.FindProperty("scaleIndicatorImagePrefab");
+        targetUICameraPrefab = serializedObject.FindProperty("targetUICameraPrefab");
         scaleText = serializedObject.FindProperty("scaleText");
         baseScale = serializedObject.FindProperty("baseScale");
 
@@ -109,6 +114,7 @@ public class MovementManagerCustomEditor : Editor
         GeneralSettingsSection = EditorGUILayout.BeginFoldoutHeaderGroup(GeneralSettingsSection, "General Settings");
         if (GeneralSettingsSection)
         {
+            EditorGUILayout.PropertyField(targetCamera);
             EditorGUILayout.PropertyField(useExternalScript);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
@@ -116,8 +122,8 @@ public class MovementManagerCustomEditor : Editor
         ScriptTargetSection = EditorGUILayout.BeginFoldoutHeaderGroup(ScriptTargetSection, "Script Target");
         if (ScriptTargetSection)
         {
-            EditorGUILayout.PropertyField(ObjectContainer);
-            EditorGUILayout.PropertyField(ObjectToAffect);
+            EditorGUILayout.PropertyField(objectContainer);
+            EditorGUILayout.PropertyField(objectToAffect);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
 
@@ -128,7 +134,9 @@ public class MovementManagerCustomEditor : Editor
             EditorGUILayout.PropertyField(blockingIU);
             if (blockingIU.boolValue)
             {
+                EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(targetTag);
+                EditorGUI.indentLevel--;
                 if (targetTag.stringValue == "")
                 {
                     targetTag.stringValue = "UI";
@@ -159,9 +167,13 @@ public class MovementManagerCustomEditor : Editor
                 EditorGUILayout.PropertyField(useScaleIndicator);
                 if (useScaleIndicator.boolValue)
                 {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(scaleIndicatorImagePrefab);
+                    EditorGUILayout.PropertyField(targetUICameraPrefab);
                     EditorGUILayout.PropertyField(scaleText);
                     EditorGUILayout.PropertyField(baseScale);
                     EditorGUILayout.PropertyField(showRawScale);
+                    EditorGUI.indentLevel--;
                 }
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
@@ -197,8 +209,10 @@ public class MovementManagerCustomEditor : Editor
             if (AdditionalScriptsSection)
             {
                 EditorGUILayout.PropertyField(useElevetionManager);
+                EditorGUI.indentLevel++;
                 if (useElevetionManager.boolValue)
                     EditorGUILayout.PropertyField(elevationManager);
+                EditorGUI.indentLevel--;
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
         }

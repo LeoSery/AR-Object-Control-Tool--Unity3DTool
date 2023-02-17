@@ -2,7 +2,7 @@
 // AR-Object-Control-Tool -- ElevationManager
 // Author: Léo Séry
 // Date created: 30/12/2022
-// Last updated: 30/12/2022
+// Last updated: 16/02/2023
 // Purpose: Allow an object to levitate to a target point and play a floating animation.
 // Documentation: https://github.com/LeoSery/AR-Object-Control-Tool--Unity3DTool
 /////////////////////////////////////////////////////////////////////////
@@ -16,8 +16,8 @@ public class ElevationManager : MonoBehaviour
     public bool isItLevitate = false;
     public float groundPosition;
 
+    public GameObject objectContainer;
     public GameObject objectToAffect;
-    public GameObject parentObject;
     public Animator objectAnimator;
 
     public bool playAnimation;
@@ -49,12 +49,12 @@ public class ElevationManager : MonoBehaviour
 
     void Start()
     {
-        Target = new Vector3(parentObject.transform.position.x, saveGroundPos, parentObject.transform.position.z);
+        Target = new Vector3(objectContainer.transform.position.x, saveGroundPos, objectContainer.transform.position.z);
     }
 
     void Update()
     {
-        if (parentObject != null)
+        if (objectContainer != null)
             if (Input.touchCount == 1 || Input.GetKeyDown(KeyCode.Mouse0))
                 if (IsOnObject())
                     if (!isItLevitate)
@@ -74,7 +74,7 @@ public class ElevationManager : MonoBehaviour
         if (objectToAffect != null)
         {
             if (objectToAffect.transform.parent.gameObject != null)
-                parentObject = objectToAffect.transform.parent.gameObject;
+                objectContainer = objectToAffect.transform.parent.gameObject;
             else
                 throw new System.NullReferenceException("ElevationManager > Place 'objectToAffect' in a parent to avoid coordinate problems during the animation.");
 
@@ -99,7 +99,7 @@ public class ElevationManager : MonoBehaviour
         }
         else
         {
-            groundPosition = parentObject.transform.localPosition.y;
+            groundPosition = objectContainer.transform.localPosition.y;
             saveGroundPos = groundPosition;
         }
 
@@ -114,9 +114,9 @@ public class ElevationManager : MonoBehaviour
     #region Methods.GoToTarget();
     void GoToTarget()
     {
-        Vector3 travelDistance = Target - parentObject.transform.localPosition;
+        Vector3 travelDistance = Target - objectContainer.transform.localPosition;
         if (!movementManager.dragging)
-            parentObject.transform.localPosition = Vector3.SmoothDamp(parentObject.transform.localPosition, Target, ref Velocity, Speed * Time.deltaTime);
+            objectContainer.transform.localPosition = Vector3.SmoothDamp(objectContainer.transform.localPosition, Target, ref Velocity, Speed * Time.deltaTime);
 
         if (travelDistance.magnitude < 0.1f)
         {
@@ -132,7 +132,7 @@ public class ElevationManager : MonoBehaviour
     #region Methods.Levitate();
     void Levitate()
     {
-        Target = new Vector3(parentObject.transform.localPosition.x, saveGroundPos, parentObject.transform.localPosition.z) + new Vector3(0f, objectFloatHeight, 0f);
+        Target = new Vector3(objectContainer.transform.localPosition.x, saveGroundPos, objectContainer.transform.localPosition.z) + new Vector3(0f, objectFloatHeight, 0f);
         stopButton.GetComponent<Button>().interactable = true;
         InvokeRepeating("GoToTarget", 0f, Time.deltaTime);
         PlayAnimation();
@@ -142,7 +142,7 @@ public class ElevationManager : MonoBehaviour
     #region StopLevitate();
     public void StopLevitate()
     {
-        Target = new Vector3(parentObject.transform.localPosition.x, saveGroundPos, parentObject.transform.localPosition.z);
+        Target = new Vector3(objectContainer.transform.localPosition.x, saveGroundPos, objectContainer.transform.localPosition.z);
         stopButton.GetComponent<Button>().interactable = false;
         InvokeRepeating("GoToTarget", 0f, Time.deltaTime);
         StopAnimation();

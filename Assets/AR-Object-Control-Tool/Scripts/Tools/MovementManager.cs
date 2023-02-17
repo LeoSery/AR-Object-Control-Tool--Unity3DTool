@@ -2,7 +2,7 @@
 // AR-Object-Control-Tool -- MovementManager
 // Author: Léo Séry
 // Date created: 30/12/2022
-// Last updated: 15/02/2023
+// Last updated: 17/02/2023
 // Purpose: Allow manipulation of a GameObject in AR with touch input.
 // Documentation: https://github.com/LeoSery/AR-Object-Control-Tool--Unity3DTool
 /////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,11 @@ public class MovementManager : MonoBehaviour
     public bool Replacement = false;
     public bool Movement = false;
 
-    public GameObject ObjectContainer;
-    public GameObject ObjectToAffect;
+    public GameObject objectContainer;
+    public GameObject objectToAffect;
+    public Camera targetCamera;
+    public Camera targetUICameraPrefab;
+    public Camera targetUICamera;
 
     public bool useExternalScript = false;
     public bool useElevetionManager = false;
@@ -40,28 +43,35 @@ public class MovementManager : MonoBehaviour
     public float minObjectScale = 1f;
     public bool useScaleIndicator = false;
     public bool showRawScale = false;
-    public TextMeshProUGUI scaleText;
+    public GameObject scaleIndicatorImagePrefab;
+    public GameObject scaleIndicatorImage;
+    public TextMeshPro scaleText;
     public float baseScale;
-    public float currentScale;
-    public float scaleFactor;
+    private float currentScale;
+    private float scaleFactor;
+    private float baseCanvasScale;
+    float minCanvasScale;
+    float maxCanvasScale;
+    public GameObject resetScaleButton;
 
     public RotationAxis rotationAxis;
-    [Range(0, (float)0.1)]
-    public float rotationSpeed = 0.5f;
+    [Range(0, (float)0.5)]
+    public float rotationSpeed = 0.01f;
     public GameObject loadingObject;
 
     [HideInInspector] public UnityEngine.UI.Image imageLoading;
     [HideInInspector] public ElevationManager elevationManager;
     [HideInInspector] public bool dragging = false;
-    private bool IsCurrentlyReplace = false;
+    private bool isCurrentlyReplace = false;
     private readonly float startingTimeToHold = 0.75f;
     private readonly float timeToHold = 1.25f;
     private float currentStartingTime = 0f;
     private float currentTime = 0f;
     private float initialDistance;
-    private UnityEngine.Vector3 initialScale;
-    private UnityEngine.Vector3 touchOffset;
+    private Vector3 initialScale;
+    private Vector3 touchOffset;
     private Transform toDrag;
+
     #endregion
 
     #region UnityFunctions
@@ -72,7 +82,7 @@ public class MovementManager : MonoBehaviour
 
     void Update()
     {
-        if (ObjectToAffect != null)
+        if (objectToAffect != null)
         {
             if ((useElevetionManager && elevationManager.isItLevitate) || !useExternalScript)
             {
@@ -106,7 +116,16 @@ public class MovementManager : MonoBehaviour
                         }
                     }
                     if (Input.touchCount == 2)
+                    {
+                        if (useScaleIndicator)
+                            scaleIndicatorImage.transform.gameObject.SetActive(true);
                         Rescale();
+                    }
+                    else
+                    {
+                        if (useScaleIndicator)
+                            scaleIndicatorImage.transform.gameObject.SetActive(false);
+                    }
                 }
                 else
                     return;
@@ -114,6 +133,12 @@ public class MovementManager : MonoBehaviour
             else
                 return;
         }
+    }
+
+    void LateUpdate()
+    {
+        if (Scaling && useScaleIndicator)
+            UpdateScaleIndicator(currentScale);
     }
     #endregion
 
@@ -124,32 +149,62 @@ public class MovementManager : MonoBehaviour
         if (Replacement)
         {
             if (loadingObject == null)
-                throw new System.NullReferenceException("MovementManager > Option to allow moving is TRUE but 'loadingObject' has no reference set to an instance of an object.");
+                throw new NullReferenceException("MovementManager > Option to allow moving is TRUE but 'loadingObject' has no reference set to an instance of an object.");
             if (!loadingObject.TryGetComponent<UnityEngine.UI.Image>(out imageLoading))
-                throw new System.NullReferenceException("MovementManager > Option to allow moving is TRUE but the component 'Image' of 'loadingObject' is null.");
+                throw new NullReferenceException("MovementManager > Option to allow moving is TRUE but the component 'Image' of 'loadingObject' is null.");
         }
 
-        if (ObjectToAffect == null)
-            ObjectToAffect = transform.gameObject;
+        if (objectToAffect == null)
+            objectToAffect = transform.gameObject;
         else
         {
-            if (ObjectContainer == null)
-                ObjectContainer = ObjectToAffect.transform.parent.gameObject;
+            if (objectContainer == null)
+                objectContainer = objectToAffect.transform.parent.gameObject;
 
             if (Movement)
             {
-                if (!ObjectToAffect.CompareTag("ObjectToAffect"))
-                    throw new System.NullReferenceException("MovementManager > Option to allow moving is TRUE but 'ObjectToAffect' does not have the necessary 'ObjectToAffect' tag to use the motion option.");
+                if (!objectToAffect.CompareTag("ObjectToAffect"))
+                    throw new NullReferenceException("MovementManager > Option to allow moving is TRUE but 'objectToAffect' does not have the necessary 'objectToAffect' tag to use the motion option.");
             }
         }
 
-        if (useScaleIndicator)
+        if (Scaling && useScaleIndicator)
         {
+            scaleIndicatorImage = Instantiate(scaleIndicatorImagePrefab, objectToAffect.transform);
+            targetUICamera = Instantiate(targetUICameraPrefab);
+
             if (scaleText == null)
-                throw new System.NullReferenceException("MovementManager > Option to allow scaling is TRUE but 'scaleText' has no reference set to an instance of an object.");
-            baseScale = ObjectToAffect.transform.localScale.x;
+            {
+                scaleText = scaleIndicatorImage.GetComponentInChildren<TextMeshPro>(true);
+                if (scaleText == null)
+                    throw new NullReferenceException("MovementManager > The scaling option is TRUE but the 'scaleText' field is empty and the object could not be retrieved via the instance of `scaleIndicatorImagePrefab` object.");
+                // todo rework error message
+            }
+
+            baseScale = objectToAffect.transform.localScale.x;
             currentScale = baseScale;
             ChangeTextValue(FormatValue(currentScale));
+            scaleIndicatorImage.SetActive(false);
+
+            if (targetUICameraPrefab != null)
+            {
+                targetUICamera.transform.SetParent(targetCamera.transform);
+                targetUICamera.transform.gameObject.SetActive(true);
+                targetUICamera.transform.localPosition = Vector3.zero;
+                targetUICamera.transform.localRotation = Quaternion.Euler(Vector3.zero);
+            }
+            else
+                throw new NullReferenceException("MovementManager > Option to show `Scale Indicator` is TRUE but 'targetUICameraPrefab' has no reference set to an instance of an object.");
+
+            if (scaleIndicatorImage != null)
+            {
+                scaleIndicatorImage.transform.SetParent(objectContainer.transform);
+                baseCanvasScale = scaleIndicatorImage.transform.localScale.x;
+                minCanvasScale = baseCanvasScale / 2;
+                maxCanvasScale = baseCanvasScale * 2;
+            }
+            else
+                throw new NullReferenceException("MovementManager > Option to show `Scale Indicator` is TRUE but 'scaleIndicatorCanvas' has no reference set to an instance of an object.");
         }
     }
     #endregion
@@ -209,7 +264,7 @@ public class MovementManager : MonoBehaviour
         {
             if (Input.touchCount > 0)
             {
-                if (!IsCurrentlyReplace)
+                if (!isCurrentlyReplace)
                 {
                     imageLoading.fillAmount = 0f;
                     loadingObject.SetActive(true);
@@ -282,13 +337,13 @@ public class MovementManager : MonoBehaviour
                 switch (rotationAxis)
                 {
                     case RotationAxis.X:
-                        ObjectToAffect.transform.Rotate(touch.deltaPosition.y * rotationSpeed, 0f, 0f, Space.World);
+                        objectToAffect.transform.Rotate(touch.deltaPosition.y * rotationSpeed, 0f, 0f, Space.World);
                         break;
                     case RotationAxis.Y:
-                        ObjectToAffect.transform.Rotate(0f, -touch.deltaPosition.x * rotationSpeed, 0f, Space.World);
+                        objectToAffect.transform.Rotate(0f, -touch.deltaPosition.x * rotationSpeed, 0f, Space.World);
                         break;
                     case RotationAxis.All:
-                        ObjectToAffect.transform.Rotate(touch.deltaPosition.y * rotationSpeed, -touch.deltaPosition.x * rotationSpeed, 0f, Space.World);
+                        objectToAffect.transform.Rotate(touch.deltaPosition.y * rotationSpeed, -touch.deltaPosition.x * rotationSpeed, 0f, Space.World);
                         break;
                 }
             }
@@ -314,31 +369,24 @@ public class MovementManager : MonoBehaviour
 
                 if (touchZero.phase == TouchPhase.Began || touchOne.phase == TouchPhase.Began)
                 {
-                    initialDistance = UnityEngine.Vector2.Distance(touchZero.position, touchOne.position);
-                    initialScale = ObjectToAffect.transform.localScale;
+                    initialDistance = Vector2.Distance(touchZero.position, touchOne.position);
+                    initialScale = objectToAffect.transform.localScale;
                 }
                 else
                 {
-                    if (ObjectToAffect.transform.localScale.x <= minObjectScale || ObjectToAffect.transform.localScale.y <= minObjectScale || ObjectToAffect.transform.localScale.z <= minObjectScale)
-                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(minObjectScale, minObjectScale, minObjectScale);
-                    else if (ObjectToAffect.transform.localScale.x >= maxObjectScale || ObjectToAffect.transform.localScale.y >= maxObjectScale || ObjectToAffect.transform.localScale.z >= maxObjectScale)
-                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(maxObjectScale, maxObjectScale, maxObjectScale);
-
-                    float currentDistance = UnityEngine.Vector2.Distance(touchZero.position, touchOne.position);
+                    float currentDistance = Vector2.Distance(touchZero.position, touchOne.position);
 
                     if (Mathf.Approximately(initialDistance, 0))
                         return;
 
                     float factor = currentDistance / initialDistance;
-                    if (ObjectToAffect.transform.localScale.x >= (1 - minObjectScale) && ObjectToAffect.transform.localScale.x <= (1 + maxObjectScale))
-                        ObjectToAffect.transform.localScale = initialScale * factor;
-                    if (ObjectToAffect.transform.localScale.x > (1 + maxObjectScale))
-                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(1 + maxObjectScale, 1 + maxObjectScale, 1 + maxObjectScale);
-                    else if (ObjectToAffect.transform.localScale.x < (1 - minObjectScale))
-                        ObjectToAffect.transform.localScale = new UnityEngine.Vector3(1 - minObjectScale, 1 - minObjectScale, 1 - minObjectScale);
+                    float newScale = initialScale.x * factor;
+                    newScale = Mathf.Clamp(newScale, minObjectScale, maxObjectScale);
+                    objectToAffect.transform.localScale = new Vector3(newScale, newScale, newScale);
                 }
-                currentScale = ObjectToAffect.transform.localScale.x;
-                ChangeTextValue(FormatValue(currentScale));
+                currentScale = objectToAffect.transform.localScale.x;
+                if (useScaleIndicator)
+                    ChangeTextValue(FormatValue(currentScale));
             }
         }
         else
@@ -411,6 +459,28 @@ public class MovementManager : MonoBehaviour
         return step;
     }
     #endregion
+
+    #region Methods.Rescale.ResetScale();
+    public void ResetScale()
+    {
+        objectToAffect.transform.localScale = new Vector3(baseScale, baseScale, baseScale);
+        currentScale = baseScale;
+        ChangeTextValue(FormatValue(currentScale));
+    }
+    #endregion
+
+    #region Methods.Rescale.UpdateScaleIndicator();
+    void UpdateScaleIndicator(float currentScaleValue)
+    {
+        float currentCanvasScale = currentScaleValue * baseCanvasScale;
+        float newCanvasScale = Mathf.Clamp(currentCanvasScale, minCanvasScale, maxCanvasScale);
+
+        scaleIndicatorImage.transform.LookAt(scaleIndicatorImage.transform.position + targetCamera.transform.forward);
+
+        scaleIndicatorImage.transform.localScale = new Vector3(newCanvasScale, newCanvasScale, newCanvasScale);
+    }
+    #endregion
+
     #endregion
 
     #region Methods.Move();
@@ -419,7 +489,7 @@ public class MovementManager : MonoBehaviour
         if (Movement)
         {
             Touch touch = Input.GetTouch(0);
-            UnityEngine.Vector3 pos = touch.position;
+            Vector3 pos = touch.position;
 
             if (touch.phase == TouchPhase.Began)
             {
@@ -434,20 +504,20 @@ public class MovementManager : MonoBehaviour
                         toDrag = hit.transform.parent;
                         dragging = true;
 
-                        touchOffset = toDrag.position - Camera.main.ScreenToWorldPoint(new UnityEngine.Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z));
+                        touchOffset = toDrag.position - Camera.main.ScreenToWorldPoint(new Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z));
                     }
                 }
             }
 
             if (dragging && touch.phase == TouchPhase.Moved)
             {
-                UnityEngine.Vector3 position = new UnityEngine.Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z);
+                Vector3 position = new Vector3(pos.x, pos.y, Camera.main.WorldToScreenPoint(toDrag.position).z);
                 toDrag.position = Camera.main.ScreenToWorldPoint(position) + touchOffset;
             }
 
             if (dragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled))
             {
-                toDrag.position = new UnityEngine.Vector3(toDrag.position.x, toDrag.position.y, toDrag.position.z);
+                toDrag.position = new Vector3(toDrag.position.x, toDrag.position.y, toDrag.position.z);
                 dragging = false;
                 if (useElevetionManager)
                     elevationManager.PlayAnimation();

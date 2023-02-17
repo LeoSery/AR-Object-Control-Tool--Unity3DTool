@@ -732,7 +732,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 31
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1081,6 +1081,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 267042676, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1379880049, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1391316885, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5224687268089264960, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -1129,18 +1141,78 @@ PrefabInstance:
       propertyPath: m_Name
       value: AR-Object-Control-Tool
       objectReference: {fileID: 0}
+    - target: {fileID: 5224687268482618245, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: Scaling
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: Movement
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: Rotating
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: Replacement
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: targetCamera
+      value: 
+      objectReference: {fileID: 963194227}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: rotationSpeed
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
       propertyPath: ObjectToAffect
       value: 
       objectReference: {fileID: 1860919170}
     - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: minObjectScale
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: objectToAffect
+      value: 
+      objectReference: {fileID: 1860919170}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: targetUICamera
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
       propertyPath: ObjectContainer
       value: 
       objectReference: {fileID: 534816868}
-    - target: {fileID: 5224687268821800717, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
-      propertyPath: parentObject
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: debugGameObject
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: objectContainer
       value: 
       objectReference: {fileID: 534816868}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: scaleIndicatorCanvas
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: targetUICameraPrefab
+      value: 
+      objectReference: {fileID: 6848335622158894123, guid: bd9bd9bfd973251468f3c764458dfcf0, type: 3}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: scaleIndicatorImagePrefab
+      value: 
+      objectReference: {fileID: 4991700541301549239, guid: a45a6043c8f46274cad469b701bb33b6, type: 3}
+    - target: {fileID: 5224687268821800706, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: scaleIndicatorCanvasPrefab
+      value: 
+      objectReference: {fileID: 7464683652526599536, guid: fd1b492312797c54c973760bb4807b02, type: 3}
     - target: {fileID: 5224687268821800717, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
       propertyPath: objectAnimator
       value: 
@@ -1149,5 +1221,17 @@ PrefabInstance:
       propertyPath: objectToAffect
       value: 
       objectReference: {fileID: 1860919170}
+    - target: {fileID: 5224687268821800717, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: objectContainer
+      value: 
+      objectReference: {fileID: 534816868}
+    - target: {fileID: 5224687268905844785, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5224687268905844785, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 588b2ba5ddfdb53438e8bc12339d1d24, type: 3}

@@ -2,7 +2,7 @@
 // AR-Object-Control-Tool -- ElevationManagerCustomEditor
 // Author: Léo Séry
 // Date created: 26/01/2023
-// Last updated: 26/01/2023
+// Last updated: 16/02/2023
 // Purpose: Modifies the Unity3D GUI to display the Script ElevationManager component of the tool in a more organized way.
 // Documentation: https://github.com/LeoSery/AR-Object-Control-Tool--Unity3DTool
 /////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ public class ElevationManagerCustomEditor : Editor
     SerializedProperty groundPosition;
 
     SerializedProperty objectToAffect;
-    SerializedProperty parentObject;
+    SerializedProperty objectContainer;
     SerializedProperty objectAnimator;
 
     SerializedProperty playAnimation;
@@ -52,7 +52,7 @@ public class ElevationManagerCustomEditor : Editor
         groundPosition = serializedObject.FindProperty("groundPosition");
 
         objectToAffect = serializedObject.FindProperty("objectToAffect");
-        parentObject = serializedObject.FindProperty("parentObject");
+        objectContainer = serializedObject.FindProperty("objectContainer");
         objectAnimator = serializedObject.FindProperty("objectAnimator");
 
         playAnimation = serializedObject.FindProperty("playAnimation");
@@ -99,8 +99,8 @@ public class ElevationManagerCustomEditor : Editor
         GameObjectSection = EditorGUILayout.Foldout(GameObjectSection, "GameObjects");
         if (GameObjectSection)
         {
+            EditorGUILayout.PropertyField(objectContainer);
             EditorGUILayout.PropertyField(objectToAffect);
-            EditorGUILayout.PropertyField(parentObject);
             if (playAnimation.boolValue)
                 EditorGUILayout.PropertyField(objectAnimator);
         }
